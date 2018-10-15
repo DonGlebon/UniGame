@@ -54,8 +54,6 @@ namespace PlayerContoller
 
         private void FixedUpdate()
         {
-            velocity.x = 0;
-            framePosition = rig2d.position;
             HorizontalInput();
             if (onGround)
             {
@@ -92,22 +90,13 @@ namespace PlayerContoller
                 if (hitCount > 0)
                 {
                     hit = hits[0];
-                    if (!hit.transform.CompareTag("Platform"))
-                    {
-                        if (onGround)
-                            move = CalculateGroundVector(move, ref moveDistance, hit);
-                        else
-                        {
-                            if (hit.distance < moveDistance)
-                                moveDistance = hit.distance - shellRadius;
-
-                        }
-
-                    }
-
+                    if (onGround)
+                        move = CalculateGroundVector(move, ref moveDistance, hit);
+                    else if (hit.distance < moveDistance && !hit.transform.CompareTag("Platform"))
+                        moveDistance = hit.distance - shellRadius;
+                    velocity.x = 0;
                 }
                 rig2d.position += move.normalized * moveDistance;
-                //  velocity.x = 0;
             }
         }
 
@@ -121,7 +110,8 @@ namespace PlayerContoller
                 for (int i = 0; i < hitCount; i++)
                 {
                     hit = hits[i];
-                    switch (hit.transform.tag)
+                    string tag = hit.transform.tag;
+                    switch (tag)
                     {
                         case "Coin":
                             {
@@ -133,7 +123,7 @@ namespace PlayerContoller
                             }
                         default:
                             {
-                                if (hit.normal.y <= 0 && hit.transform.tag != "Platform" && hit.distance != 0)
+                                if (hit.normal.y <= 0 && tag != "Platform" && hit.distance != 0)
                                 {
                                     moveDistance = hit.distance - shellRadius;
                                     velocity.y = 0;
@@ -144,9 +134,8 @@ namespace PlayerContoller
                                     moveDistance = (hit.normal.x == -1f) ? 0 : hit.distance - shellRadius;
                                     onGround = true;
                                 }
-                                else if (hit.transform.tag != "Platform" && hit.distance > shellRadius)
+                                else if (tag != "Platform" && hit.distance > shellRadius)
                                 {
-
                                     move.x += hit.normal.x * hit.normal.y * 3f;
                                     moveDistance = hit.distance - shellRadius;
                                     onGround = false;
@@ -192,16 +181,6 @@ namespace PlayerContoller
             else
                 moveDistance = (hit.distance - shellRadius);
             return move.normalized * moveDistance;
-        }
-
-        private bool isNegative(float value)
-        {
-            return (value < 0) ? true : false;
-        }
-
-        private bool isPositive(float value)
-        {
-            return (value > 0) ? true : false;
         }
     }
 }
