@@ -1,57 +1,93 @@
-﻿using System;
+﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
+    public int CoinCount = 0;
+
+    private static GameManager instance = null;
+    public static GameManager Instance
+    {
+        get
+        {
+            return instance;
+        }
+    }
+
+    private void Awake()
+    {
+        if (instance == null)
+            instance = this;
+        else if (instance != this)
+            Destroy(gameObject);
+        DontDestroyOnLoad(gameObject);
+    }
+
+    private LevelSettings settings;
 
 
-    public static GameManager Instance { get; set; }
-    private AudioManager audioManager { get; set; }
-    private UIManager uiManager { get; set; }
-    private LevelManager levelManager { get; set; }
+    private AudioManager audioManager;
+
+    public AudioManager Audio
+    {
+        get { return audioManager; }
+    }
+
+    private EventManager eventManager;
+    public EventManager Event
+    {
+        get { return eventManager; }
+    }
+
 
     private void OnEnable()
     {
         SceneManager.sceneLoaded += OnSceneWasLoaded;
     }
 
-    private void OnDisable()
+    private void OnSceneWasLoaded(Scene scene, LoadSceneMode mode)
     {
-        SceneManager.sceneLoaded -= OnSceneWasLoaded;
+        LoadLevelSettings();
+        InitializeManagers();
     }
 
-    private void OnSceneWasLoaded(Scene scene,LoadSceneMode mode)
+    private void LoadLevelSettings()
     {
-        SetupGameManager();
+        settings = Resources.Load<LevelSettings>(string.Format("LevelSettings/{0}", SceneManager.GetActiveScene().name));
     }
 
-    private void Awake()
+    private void InitializeManagers()
     {
-        if (Instance == null)
-            Instance = this;
-        else
-            Destroy(gameObject);
-        audioManager = GetComponent<AudioManager>();
-        uiManager = (UIManager)FindObjectOfType(typeof(UIManager));
-        DontDestroyOnLoad(gameObject);
+        eventManager = new EventManager();
+        audioManager = settings.audioManager;
+        audioManager.Attachlisteners();
+        audioManager.GetCamera();
     }
 
-    private void SetupGameManager()
+    public void PlayFootStepsSound()
     {
-        uiManager = (UIManager)FindObjectOfType(typeof(UIManager));
-        levelManager = (LevelManager)FindObjectOfType(typeof(LevelManager));
-        audioManager.Data = levelManager.AudioData;
+        StartCoroutine("FootstepsSound");
+
     }
 
-    public void PickUpCoin()
+    public void StopPlayFootStepsSound()
     {
-        audioManager.PlayCoinSound();
-        uiManager.UpdateCoins();
+        StopCoroutine("FootstepsSound");
     }
 
-    public void Jump()
+
+
+    private IEnumerator FootstepsSound()
     {
-        audioManager.PlayJumpSound();
+        for (; ; )
+        {
+            Audio.FootSteps.source.PlayOneShot(Audio.FootSteps.clip);
+            yield return new WaitForSeconds(settings.audioManager.footstepsDelay);
+        }
+    }
+    public void DestroyGameObject(GameObject obj)
+    {
+        Destroy(obj);
     }
 }

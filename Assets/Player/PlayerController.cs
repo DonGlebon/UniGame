@@ -66,16 +66,7 @@ public class PlayerController : MonoBehaviour
         UpdateAnimation(h);
     }
 
-    private IEnumerator FootstepsSound()
-    {
-        for (; ; )
-        {
-            footstepsPlaying = false;
-            audioSource.PlayOneShot(walkClip);
-            yield return new WaitForSeconds(footstepsDelay);
-            footstepsPlaying = true;
-        }
-    }
+
 
     private void InputMove()
     {
@@ -98,7 +89,7 @@ public class PlayerController : MonoBehaviour
         }
         if (Input.GetKey(KeyCode.Space) && Grounded)
         {
-            GameManager.Instance.Jump();
+          //  GameManager.Instance.Jump();
             velocity.y = jumpForce;
             Grounded = false;
             animator.SetBool("Jump", true);
@@ -136,7 +127,7 @@ public class PlayerController : MonoBehaviour
                             }
                         case "Coin":
                             {
-                                GameManager.Instance.PickUpCoin();
+                            //    GameManager.Instance.PickUpCoin();
                                 Destroy(hits[i].transform.gameObject);
 
                                 rig2d.position += move.normalized * moveDistance;
@@ -191,7 +182,7 @@ public class PlayerController : MonoBehaviour
                 }
                 else if (hitTag.Equals("Coin"))
                 {
-                    GameManager.Instance.PickUpCoin();
+                 //   GameManager.Instance.PickUpCoin();
                     Destroy(hits[i].transform.gameObject);
                     Vector2 deltaPosition = move.normalized * moveDistance;
                     if (deltaPosition.magnitude > minMoveDistance * 2f)

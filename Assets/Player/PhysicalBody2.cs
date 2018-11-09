@@ -26,7 +26,31 @@ namespace PlayerContoller
         }
 
         private Gravity gravity;
-        protected bool onGround = false;
+        private bool grounded = false;
+        protected bool onGround
+        {
+            get { return grounded; }
+            set
+            {
+                if (value)
+                {
+                    if (!grounded && Math.Abs(inputSpeed) > 0.1f)
+                        GameManager.Instance.PlayFootStepsSound();
+                    else if (Math.Abs(inputSpeed) < 0.1f)
+                        GameManager.Instance.StopPlayFootStepsSound();
+                    grounded = true;
+
+                }
+                else
+                {
+                    GameManager.Instance.StopPlayFootStepsSound();
+                    grounded = false;
+                }
+
+            }
+
+
+        }
         private Vector2 velocity;
         private float inputSpeed = 0;
 
@@ -52,6 +76,17 @@ namespace PlayerContoller
             gravity = Gravity.AIR;
         }
 
+        public void Jump()
+        {
+            if (onGround)
+            {
+                GameManager.Instance.Event.onJump.Invoke();
+                velocity.y = jumpForce;
+                onGround = false;
+                gravity = Gravity.AIR;
+            }
+        }
+
         private void FixedUpdate()
         {
             HorizontalInput();
@@ -62,12 +97,11 @@ namespace PlayerContoller
             }
             else
                 gravity = Gravity.AIR;
-            if (Input.GetKey(KeyCode.Space) && onGround)
-            {
-                velocity.y = jumpForce;
-                onGround = false;
-                gravity = Gravity.AIR;
-            }
+            
+            //if (Input.GetKey(KeyCode.Space) && onGround)
+            //{
+              
+            //}
             velocity += Physics2D.gravity * Time.deltaTime * (int)gravity;
             Vector2 deltaPosition = velocity * Time.deltaTime;
             if (inputSpeed != 0)
@@ -77,7 +111,7 @@ namespace PlayerContoller
 
         private void HorizontalInput()
         {
-            inputSpeed = Input.GetAxis("Horizontal");
+            inputSpeed = TouchController.GetAxis("Horizontal");
             velocity.x = inputSpeed * speed;
         }
 
@@ -102,7 +136,7 @@ namespace PlayerContoller
 
         private void MoveY(Vector2 move)
         {
-            onGround = false;
+            //   onGround = false;
             float moveDistance = move.magnitude;
             int hitCount = rig2d.Cast(move, generalFilter, hits, moveDistance + shellRadius);
             if (hitCount > 0)
@@ -110,11 +144,12 @@ namespace PlayerContoller
                 for (int i = 0; i < hitCount; i++)
                 {
                     hit = hits[i];
-                    string tag = hit.transform.tag;
-                    switch (tag)
+
+                    switch (hit.transform.tag)
                     {
                         case "Coin":
                             {
+                                GameManager.Instance.Event.onCoinPickUp.Invoke(hit.transform.gameObject);
                                 break;
                             }
                         case "Trap":
@@ -123,7 +158,7 @@ namespace PlayerContoller
                             }
                         default:
                             {
-                                if (hit.normal.y <= 0 && tag != "Platform" && hit.distance != 0)
+                                if (hit.normal.y <= 0 && !hit.transform.CompareTag("Platform") && hit.distance != 0)
                                 {
                                     moveDistance = hit.distance - shellRadius;
                                     velocity.y = 0;
@@ -134,7 +169,7 @@ namespace PlayerContoller
                                     moveDistance = (hit.normal.x == -1f) ? 0 : hit.distance - shellRadius;
                                     onGround = true;
                                 }
-                                else if (tag != "Platform" && hit.distance > shellRadius)
+                                else if (!hit.transform.CompareTag("Platform") && hit.distance > shellRadius)
                                 {
                                     move.x += hit.normal.x * hit.normal.y * 3f;
                                     moveDistance = hit.distance - shellRadius;
@@ -147,6 +182,8 @@ namespace PlayerContoller
 
                 }
             }
+            else
+                onGround = false;
             Vector2 deltaPosition = move.normalized * moveDistance;
             rig2d.position += deltaPosition;
         }

@@ -2,58 +2,69 @@
 using UnityEngine;
 
 [Serializable]
-public class AudioManager : MonoBehaviour
+[DefaultExecutionOrder(101)]
+public class AudioManager
 {
-    private GameObject Camera { get; set; }
-    private Audio Jump { get; set; }
-    private Audio Coin { get; set; }
-    public AudioManagerData Data { get; set; }
 
-    public void InstantiateAudioSource()
+    public AudioData Jump;
+    public AudioData Coin;
+    public AudioData FootSteps;
+    public float footstepsDelay;
+    public Camera camera;
+
+
+
+    public void Attachlisteners()
     {
-
+        GameManager.Instance.Event.onJump.AddListener(OnJumpListener);
+        GameManager.Instance.Event.onCoinPickUp.AddListener(OnCoinPickUpListener);
     }
 
 
-    public void Setup()
-    {
 
+
+
+    private void OnJumpListener()
+    {
+        Jump.source.Play();
     }
 
-    private void GetAudioData()
+    private void OnCoinPickUpListener(GameObject obj)
     {
-
+        Coin.source.PlayOneShot(Coin.clip);
+        GameManager.Instance.DestroyGameObject(obj);
     }
 
-    public void PlayCoinSound()
+    public void GetCamera()
     {
-        //UpdateSourceConfig(coinClip);
-        //source.PlayOneShot(coinClip.clip);
+        camera = Camera.main;
+        AddAudioSource(Jump, Coin, FootSteps);
     }
 
-    private void UpdateSourceConfig(Audio audio)
+    private void AddAudioSource(params AudioData[] data)
     {
-        //source.pitch = audio.pitch + UnityEngine.Random.Range(-audio.pitchRange, audio.pitchRange);
-        //source.spatialBlend = audio.spatialBlend;
-        //source.volume = audio.volume;
-        //source.priority = audio.priority;
+        for (int i = 0; i < data.Length; i++)
+        {
+            AudioSource source = camera.gameObject.AddComponent<AudioSource>() as AudioSource;
+            source.clip = data[i].clip;
+            source.pitch = data[i].pitch;
+            source.spatialBlend = data[i].spatialBlend;
+            source.volume = data[i].volume;
+            source.priority = data[i].priority;
+            data[i].source = source;
+        }
     }
 
-    public void PlayJumpSound()
-    {
-        //UpdateSourceConfig(jumpClip);
-        //source.PlayOneShot(jumpClip.clip);
-    }
 }
 
 [Serializable]
-public struct Audio
+public class AudioData
 {
     [HideInInspector]
     public AudioSource source;
     public AudioClip clip;
     [Range(-3f, 3f)]
-    public float pitch;
+    public float pitch = 1f;
     [Range(0f, 1f)]
     public float pitchRange;
     [Range(0, 1f)]

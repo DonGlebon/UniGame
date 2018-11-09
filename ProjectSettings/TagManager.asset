@@ -8,6 +8,7 @@ TagManager:
   - Coin
   - Trap
   - Enviroment
+  - Canvas
   layers:
   - Default
   - TransparentFX
@@ -44,4 +45,13 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Enviroment
+    uniqueID: 2551911529
+    locked: 0
+  - name: Object
+    uniqueID: 618972629
+    locked: 0
+  - name: Player
+    uniqueID: 211705987
     locked: 0

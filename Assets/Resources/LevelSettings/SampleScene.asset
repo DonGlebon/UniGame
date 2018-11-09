@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 64d4db9f1cb27df4ea702cc906cfd107, type: 3}
+  m_Name: SampleScene
+  m_EditorClassIdentifier: 
+  audioManager:
+    Jump:
+      source: {fileID: 0}
+      clip: {fileID: 8300000, guid: 408772a2bf6b29b468cd6c6aff2bbc04, type: 3}
+      pitch: 0.7
+      pitchRange: 0
+      spatialBlend: 0
+      volume: 0.35
+      priority: 2
+    Coin:
+      source: {fileID: 0}
+      clip: {fileID: 8300000, guid: 43200f6ec94faf54193007eae3612ef7, type: 3}
+      pitch: 1.5
+      pitchRange: 0
+      spatialBlend: 0
+      volume: 1
+      priority: 1
+    FootSteps:
+      source: {fileID: 0}
+      clip: {fileID: 8300000, guid: fd8dd4274647a9043a038ad8caa0a713, type: 3}
+      pitch: 0.7
+      pitchRange: 0
+      spatialBlend: 0
+      volume: 1
+      priority: 0
+    footstepsDelay: 0.24
